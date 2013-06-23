@@ -1,51 +1,31 @@
 var express = require('express');
 var Q = require('q');
-var Postal = require('postal');
+var bus = require('./core/bus');
 var hb = require('handlebars');
 
-var postal = Postal();
-var channel = postal.channel();
+// var postal = Postal();
+var PageFactory = require('./core/PageFactory')
+    app = express();
 
-var nastyGlobal = false;
+var factory = new PageFactory();
 
-hb.registerHelper('dostuff',function(){
-	return nastyGlobal;
+
+
+bus.subscribe('request.in', function(data) {
+    console.log(data.id);
+    data.res.send();
 });
 
-channel.subscribe('request.in',function(data){
-	
-	var lh = hb.create();
-
-	lh.registerHelper('dostuff',function(){
-		return data.id;
-	});
-
-	setTimeout(function(){
-		console.log(' - inside request event -',data.id,lh.helpers['dostuff']());
-	},data.timer);
-	console.log(data.id);
-	
-	data.res.send('hi')
-});
-
-var app = express();
-
-app.get('/',function(req,res,next){
-
-	var timer = Math.random()*5000;
-	nastyGlobal = Date.now();
-	
-	setTimeout(function(){
-		console.log('global: ',hb.helpers['dostuff']());
-	},timer);
-	
-
-	channel.publish('request.in',{
-		req: req,
-		res: res,
-		id: nastyGlobal,
-		timer: timer
-	});
+app.get('/', function(req, res, next) {
+    bus.publish('request.in', {
+        req: req,
+        res: res,
+        id: Date.now()
+    });
 });
 
 app.listen(8000);
+
+module.exports = {
+    app:app
+};
