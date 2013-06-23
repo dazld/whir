@@ -6,8 +6,8 @@ var Backbone = require('backbone'),
 var PageFactory = function PageFactory(options) {
 	var args = Array.prototype.slice.call(arguments);
 	this.startListening();
-	this.bus.publish('pagefactory.instanced', {
-
+	this.bus.publish('core.module', {
+		module: "PageFactory"
 	});
 };
 
@@ -18,10 +18,10 @@ PageFactory.prototype.startListening = function startListening() {
 };
 
 PageFactory.prototype.build = function build(options) {
-	console.log(options);
 	
+
 	var building = Q.defer();
-	
+
 	return building;
 };
 

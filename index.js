@@ -12,7 +12,6 @@ var factory = new PageFactory();
 
 
 bus.subscribe('request.in', function(data) {
-    console.log(data.id);
     data.res.send();
 });
 
@@ -20,7 +19,8 @@ app.get('/', function(req, res, next) {
     bus.publish('request.in', {
         req: req,
         res: res,
-        id: Date.now()
+        id: Date.now(),
+        url: req.url
     });
 });
 
