@@ -4,16 +4,21 @@ var Backbone = require('backbone'),
 
 
 var PageFactory = function PageFactory(options) {
-	var args = Array.prototype.slice.call(arguments);
+	
 	this.startListening();
+	
 	this.bus.publish('core.module', {
 		module: "PageFactory"
 	});
+
 };
 
 PageFactory.prototype.bus = bus;
 
 PageFactory.prototype.startListening = function startListening() {
+
+	var Building = Q.promised(this.build);
+
 	this.bus.subscribe('request.in', this.build.bind(this));
 };
 
@@ -21,7 +26,9 @@ PageFactory.prototype.build = function build(options) {
 	
 
 	var building = Q.defer();
-
+	
+	//
+	
 	return building;
 };
 

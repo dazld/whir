@@ -8,21 +8,40 @@ var PageFactory = require('./core/PageFactory')
 
 var factory = new PageFactory();
 
-bus.subscribe('request.in', function(data) {
-    data.res.send();
-});
+var WhirView = require('./core/views/WhirView');
 
-app.get('*', function(req, res, next) {
-    bus.publish('request.in', {
-        req: req,
-        res: res,
-        id: Date.now(),
-        url: req.url
-    });
-});
 
-app.listen(8000);
-
-module.exports = {
-    app:app
+var library = {
+	views: {
+		Base: WhirView
+	}
 };
+
+
+
+
+
+
+var WhirApp = function(options){
+
+	app.get('*', function(req, res, next) {
+	    bus.publish('request.in', {
+	        req: req,
+	        res: res,
+	        id: Date.now(),
+	        url: req.url
+	    });
+	});
+
+	// 
+	bus.subscribe('request.in', function(data) {
+	    data.res.send();
+	});
+
+	app.listen(8000);
+}
+WhirApp.prototype.factory = factory;
+WhirApp.prototype.library = library;
+WhirApp.prototype.bus = bus;
+
+module.exports = WhirApp;
