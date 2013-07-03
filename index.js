@@ -30,7 +30,9 @@ var WhirApp = function(options){
 
 WhirApp.prototype.start = function start (){
 	
-	console.log('start');
+	bus.publish('whir.start',{
+		some:'data'
+	});
 
 	app.get('*', function(req, res, next) {
 	    bus.publish('request.in', {

@@ -1,8 +1,8 @@
 var Backbone = require('backbone'),
-	bus = require('../bus');
+    bus = require('../bus');
 
 var WhirController = function(){
-	
+    
 }
 
 
