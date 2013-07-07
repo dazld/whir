@@ -13,7 +13,7 @@ var PageFactory = function PageFactory(options) {
 
 };
 
-// mixin the main app bus
+// link to the main app bus
 PageFactory.prototype.bus = bus;
 
 // setup listeners for incoming build events
