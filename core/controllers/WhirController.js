@@ -8,13 +8,18 @@ var Backbone = require('backbone'),
 var expectedRouteSignature = ['req', 'res'];
 
 
-var WhirController = function() {
-
+var WhirController = function WhirController () {
+    if (!_.isString(this.name)) {
+        throw 'controllers require a name property to setup routes';
+    };
     this.routes = this.routes && _.isArray(this.routes) ? this.routes : [];
 
     for (var prop in this) {
-        if (_.isEqual(this.getSignature(this[prop]), expectedRouteSignature)) {
-            this.routes.push(prop);
+
+        if (_.isFunction(this[prop])) {
+            if (_.isEqual(this.getSignature(this[prop]), expectedRouteSignature)) {
+                this.routes.push(prop);
+            }
         }
     }
 
