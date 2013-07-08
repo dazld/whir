@@ -4,15 +4,18 @@ var bus = require('../bus');
 var ServerRouter = Backbone.Router.extend({
 	bus: bus,
 	routes: {
-		"":"index",
-		"release/:id":"release",
-		"release":"release"
-
+		"":"index"
+		
 	},
 	index: function(){
 		this.bus.publish('routed',{
 			page: "default"
 		});
+
+		this.bus.subscribe('app.routes',this.addRoutes.bind(this));
+	},
+	addRoutes: function(routes){
+		console.log(routes);
 	},
 	release: function(id){
 

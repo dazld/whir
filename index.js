@@ -3,51 +3,86 @@ var Q = require('q');
 var bus = require('./core/bus');
 var hb = require('handlebars');
 
-var PageFactory = require('./core/PageFactory')
+var PageFactory = require('./core/PageFactory'),
+	fs = require('fs'),
+	path = require('path'),
     app = express();
 
 var factory = new PageFactory();
 
-var WhirView = require('./core/views/WhirView');
-var WhirController = require('./core/controllers/WhirController');
 
-
-var library = {
-	views: {
-		Base: WhirView
-	},
-	controller: {
-		Base: WhirController
-	}
-};
+var directories = ['controllers','views','models','collections','templates'];
 
 
 
 var WhirApp = function(options){
 
+	this.library = {};
+	directories.forEach(function(dir){
+		this.library[dir] = {};
+	},this)
 	
+};
+
+WhirApp.prototype.getStructure = function() {
+	var cwd = process.cwd() + '/app/',
+		_this = this;
+
+	directories.forEach(function(searchDirectory){
+
+		var pathToSearch = cwd+searchDirectory
+		
+		if (fs.existsSync(pathToSearch)) {
+			var files = fs.readdirSync(pathToSearch);
+
+			files.forEach(function(file){
+				
+				var toLoad = pathToSearch+'/'+file;
+				var extension = path.extname(toLoad),
+					basename = path.basename(toLoad,extension);
+
+				if (extension === '.js') {
+					_this.library[searchDirectory][basename] = require(toLoad);
+				};
+
+				if (extension === '.hbs') {
+
+					var template = fs.readFileSync(toLoad,'UTF8');
+					// console.log(template);
+
+					_this.library[searchDirectory][basename] = hb.compile(template);	
+				};
+
+
+			},_this);
+
+		} else {
+			bus.publish('app.debug','[APP] No "'+searchDirectory+'" diectory');
+		}
+	},this);
+
+	console.log(this.library)
+
 };
 
 WhirApp.prototype.start = function start (){
 	
-	bus.publish('whir.start',{
-		some:'data'
-	});
 
-	app.get('*', function(req, res, next) {
+	this.getStructure();
+
+	/*app.get('*', function(req, res, next) {
 	    bus.publish('request.in', {
 	        req: req,
 	        res: res,
 	        id: Date.now(),
 	        url: req.url
 	    });
-	});
+	});*/
 
 	app.listen(8000);
 };
 
 WhirApp.prototype.factory = factory;
-WhirApp.prototype.library = library;
 WhirApp.prototype.bus = bus;
 
 module.exports = WhirApp;
