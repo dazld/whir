@@ -11,9 +11,11 @@ var expectedRouteSignature = ['req', 'res', 'params'];
 var WhirController = function WhirController () {
 
     if (!_.isString(this.name)) {
-        throw 'controllers require a name property to setup routes';
+        // throw 'controllers require a name property to setup routes';
     };
-    
+    this.bus.publish('app.controller',{
+        name: this.name
+    })
     this.routes = this.routes && _.isArray(this.routes) ? this.routes : [];
     this.parseRoutes();
     this.initialize.apply(this, arguments);
@@ -30,6 +32,11 @@ WhirController.prototype.parseRoutes = function() {
             this.routes.push(prop);
         }
     }
+    this.bus.publish('app.routes',{
+        name: this.name,
+        routes: this.routes,
+        instance: this
+    })
 };
 
 WhirController.prototype.getSignature = function(object) {

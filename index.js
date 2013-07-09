@@ -42,7 +42,13 @@ WhirApp.prototype.getStructure = function() {
 					basename = path.basename(toLoad,extension);
 
 				if (extension === '.js') {
-					_this.library[searchDirectory][basename] = require(toLoad);
+
+					var loadedController = require(toLoad);
+
+					loadedController.prototype.name = basename;
+					_this.library[searchDirectory][basename] = new loadedController();
+
+					// _this.library[searchDirectory][basename] = new (require(toLoad))();
 				};
 
 				if (extension === '.hbs') {
@@ -70,14 +76,14 @@ WhirApp.prototype.start = function start (){
 
 	this.getStructure();
 
-	/*app.get('*', function(req, res, next) {
+	app.get('*', function(req, res, next) {
 	    bus.publish('request.in', {
 	        req: req,
 	        res: res,
 	        id: Date.now(),
 	        url: req.url
 	    });
-	});*/
+	});
 
 	app.listen(8000);
 };
