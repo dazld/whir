@@ -1,6 +1,7 @@
 var Backbone = require('backbone'),
 	Q = require('q')
 	bus = require('./bus'),
+	path = require('path'),
 	U = require('url');
 
 
@@ -33,31 +34,38 @@ PageFactory.prototype.addRoutes = function(routes) {
 	// this.routes = this.routes.concat(routes);
 	this.routes[routes.name] = routes;
 	
-	
 };
 
 // build function, returning a promise to the built page
 PageFactory.prototype.build = function build(options) {
 
+	var building = Q.defer();
 
-	var url = options.url.split('/');
+	var url = path.normalize(options.url).split('/');
 
+	if (url.join('/') !== options.url){
+		options.res.redirect(url.join('/'));
+	}
+
+	console.log(this.routes);
 	
 
 	if (this.routes[url[1]]) {
+		
 		var controller = url[1];
 		var action = url[2];
+
 		var output = this.routes[controller].instance[action](options.req,options.res);
 		options.res.send(output);
 	};
 
 	
 
-	var building = Q.defer();
+	
 
 	//
 
-	return building;
+	return building.promise;
 
 
 
