@@ -26,17 +26,20 @@ WhirController.prototype.initialize = function() {
 };
 
 WhirController.prototype.parseRoutes = function() {
+    
     for (var prop in this) {
         // console.log(this.hasOwnProperty(prop))
         if (_.isFunction(this[prop]) && _.isEqual(this.getSignature(this[prop]), expectedRouteSignature)) {
             this.routes.push(prop);
         }
     }
+
     this.bus.publish('app.routes',{
         name: this.name,
         routes: this.routes,
         instance: this
-    })
+    });
+    
 };
 
 WhirController.prototype.getSignature = function(object) {
@@ -45,7 +48,7 @@ WhirController.prototype.getSignature = function(object) {
 
 WhirController.prototype.bus = bus;
 
-WhirController.extend = Backbone.View.extend;
+WhirController.extend = Backbone.Model.extend; // use backbone's extend, giving access to __super__
 
 
 

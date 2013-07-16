@@ -17,7 +17,7 @@ var PageFactory = function PageFactory(options) {
 // link to the main app bus
 PageFactory.prototype.bus = bus;
 
-// setup listeners for incoming build events
+// setup listeners for incoming events
 PageFactory.prototype.startListening = function startListening() {
 	this.bus.subscribe('app.routes', this.addRoutes.bind(this));
 	this.bus.subscribe('request.in', this.build.bind(this));
