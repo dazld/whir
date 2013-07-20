@@ -92,15 +92,22 @@ WhirApp.prototype.getStructure = function() {
 
 				if (extension === '.js') {
 
-					var resource = require(toLoad);
 
-					resource.prototype.name = basename;
+					
 					// _this.library[searchDirectory][basename] = resource;
 
 					var loadedResource = _this.library[searchDirectory][basename] = require(toLoad);
+					loadedResource.prototype.name = basename;
+
 					if (searchDirectory === 'controllers'){
 						loadedResource.prototype.parseRoutes.apply(loadedResource.prototype);
 					}
+
+					if (searchDirectory === 'views') {
+						
+						bus.publish('app.views',loadedResource);
+					};
+					
 
 					
 				};

@@ -9,10 +9,12 @@ var Backbone = require('backbone'),
 var expectedRouteSignature = ['req', 'res', 'params'];
 
 
-var WhirController = function WhirController (url, handleBars,uuid) {
+var WhirController = function WhirController(url, framework, uuid) {
 
     this.url = url;
-    this.hb = handleBars;
+    this.hb = framework.templates;
+    this.views = framework.views;
+    this.models = framework.models;
     this.uuid = uuid;
 
     // if (!_.isString(this.name)) {
@@ -25,7 +27,7 @@ var WhirController = function WhirController (url, handleBars,uuid) {
     // });
 
     this.routes = this.routes && _.isObject(this.routes) ? this.routes : {};
-    
+
     this.initialize.apply(this, arguments);
 };
 
@@ -34,7 +36,7 @@ WhirController.prototype.initialize = function() {
 };
 
 WhirController.prototype.parseRoutes = function() {
-    
+
     var parsedRoutes = [];
 
     for (var prop in this) {
@@ -45,31 +47,31 @@ WhirController.prototype.parseRoutes = function() {
 
 
             if (prop === 'index') {
-                toPush[''+this.name] = prop;
+                toPush['' + this.name] = prop;
             } else {
-                toPush[this.name+'/'+prop] = prop;
+                toPush[this.name + '/' + prop] = prop;
                 // parsedRoutes.push(this.name+'/'+prop);
             }
 
             parsedRoutes.push(toPush);
-            
+
         }
     }
 
-    _.each(this.routes,function(value, key, list){
+    _.each(this.routes, function(value, key, list) {
         var toPush = {};
         toPush[key] = value;
         parsedRoutes.push(toPush);
-    },this);
+    }, this);
 
     // console.log('[debug]: ',this.routes);
 
-    this.bus.publish('app.routes',{
+    this.bus.publish('app.routes', {
         name: this.name,
         routes: parsedRoutes,
         instance: this
     });
-    
+
 };
 
 WhirController.prototype.getSignature = function(object) {
@@ -83,5 +85,3 @@ WhirController.extend = Backbone.Model.extend; // use backbone's extend, giving 
 
 
 module.exports = WhirController;
-
-

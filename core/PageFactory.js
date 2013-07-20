@@ -10,6 +10,7 @@ var PageFactory = function PageFactory(options) {
 
 	this.startListening();
 	this.routes = {};
+	this.views = {};
 	this.bus.publish('core.module', {
 		module: "PageFactory"
 	});
@@ -22,7 +23,8 @@ PageFactory.prototype.bus = bus;
 // setup listeners for incoming events
 PageFactory.prototype.startListening = function startListening() {
 	this.bus.subscribe('app.routes', this.addRoutes.bind(this));
-	this.bus.subscribe('app.templates',this.addTemplates.bind(this));
+	this.bus.subscribe('app.templates', this.addTemplates.bind(this));
+	this.bus.subscribe('app.views', this.addView.bind(this));
 	this.bus.subscribe('request.in', this.handleBuildRequest.bind(this));
 };
 
@@ -35,54 +37,70 @@ PageFactory.prototype.addTemplates = function(templates) {
 PageFactory.prototype.addRoutes = function(routes) {
 	// this.routes = this.routes.concat(routes);
 	this.routes[routes.name] = routes;
-	
+
 };
 
-PageFactory.prototype.handleBuildRequest = function(options){
+// single view add 
+PageFactory.prototype.addView = function(view) {
+	// this.routes = this.routes.concat(routes);
+	this.views[view.prototype.name] = view;
+
+};
+
+PageFactory.prototype.handleBuildRequest = function(options) {
 
 	var bus = this.bus;
-	
-	
-	
+
+
+
 	var url = path.normalize(options.url).split('/');
 
-	if (url.join('/') !== options.url){
+	if (url.join('/') !== options.url) {
 		options.res.redirect(url.join('/'));
 	} else {
-		this.build(url,options.uuid).then(function(result){
+		this.build(url, options.uuid).then(function(result) {
 			options.res.send(result);
-		}, function(error){
-			bus.publish('app.debug',error);
-		}).done(function(){
-			var duration = Date.now()-options.time;
-			bus.publish('app.debug','Done building in '+duration+' ms');
-			
+		}, function(error) {
+			bus.publish('app.debug', error);
+		}).done(function() {
+			var duration = Date.now() - options.time;
+			bus.publish('app.debug', 'Done building in ' + duration + ' ms');
+
 		});
 	}
 };
 
+PageFactory.prototype.getFramework = function() {
+	var fw = {
+		templates: this.templates,
+		views: this.views,
+		models: this.models
+
+	};
+
+	return fw;
+};
+
 // build function, returning a promise to the built page
-PageFactory.prototype.build = function build(url,uuid) {
+PageFactory.prototype.build = function build(url, uuid) {
 
 	var buildingPage = Q.defer();
 
-	
+	var framework = this.getFramework();
 
 	if (this.routes[url[1]]) {
-		
+
 		var controller = url[1];
 		var action = url[2];
-		
-		var requestInstance = new this.routes[controller].instance.constructor(url,this.templates,uuid);
-		
+
+		var requestInstance = new this.routes[controller].instance.constructor(url, framework, uuid);
+
 
 		var output = requestInstance[action].apply(requestInstance);
 		buildingPage.resolve(output);
 	};
 
-	
 
-	
 
 	//
 
