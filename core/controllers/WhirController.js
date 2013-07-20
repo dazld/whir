@@ -4,27 +4,33 @@ var Backbone = require('backbone'),
     _ = require('underscore');
 
 
-// if we have this function signature, then let's assume its a route
+// if we have this function signature, then let's assume it is a route
+// @todo think about what sig to have here (this one is dumb)
 var expectedRouteSignature = ['req', 'res', 'params'];
 
 
-var WhirController = function WhirController () {
+var WhirController = function WhirController (url, handleBars,uuid) {
 
-    if (!_.isString(this.name)) {
-        // throw 'controllers require a name property to setup routes';
-    };
+    this.url = url;
+    this.hb = handleBars;
+    this.uuid = uuid;
 
-    this.bus.publish('app.controller',{
-        name: this.name
-    });
+    // if (!_.isString(this.name)) {
+    //     // throw 'controllers require a name property to setup routes';
+    // };
+
+    // this.bus.publish('app.controller',{
+    //     name: this.name,
+    //     url: this.url
+    // });
 
     this.routes = this.routes && _.isObject(this.routes) ? this.routes : {};
-    this.parseRoutes();
+    
     this.initialize.apply(this, arguments);
 };
 
 WhirController.prototype.initialize = function() {
-    console.log(arguments);
+    // console.log('CONTROLLER INIT',arguments);
 };
 
 WhirController.prototype.parseRoutes = function() {

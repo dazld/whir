@@ -17,7 +17,7 @@ var directories = ['controllers', 'views', 'models', 'collections', 'templates']
 
 
 var WhirApp = function(options) {
-
+	this.options = options;
 	this.library = {};
 	directories.forEach(function(dir) {
 		this.library[dir] = {};
@@ -41,8 +41,13 @@ WhirApp.prototype.start = function start() {
 
 WhirApp.prototype.bootServer = function(args) {
 
+	var defaultRoute = this.options.defaultRoute || '/base/index';
 
 	app.get('*', function(req, res, next) {
+
+		if (req.url === '/') {
+			req.url = defaultRoute;
+		};
 
 		var normalizedUrl = path.normalize(req.url);
 		if (normalizedUrl !== req.url) {
@@ -50,6 +55,7 @@ WhirApp.prototype.bootServer = function(args) {
 			next();
 		} else {
 			bus.publish('request.in', {
+				time: Date.now(),
 				uuid: uuid(),
 				req: req,
 				res: res,
@@ -91,7 +97,12 @@ WhirApp.prototype.getStructure = function() {
 					resource.prototype.name = basename;
 					// _this.library[searchDirectory][basename] = resource;
 
-					_this.library[searchDirectory][basename] = new(require(toLoad))();
+					var loadedResource = _this.library[searchDirectory][basename] = require(toLoad);
+					if (searchDirectory === 'controllers'){
+						loadedResource.prototype.parseRoutes.apply(loadedResource.prototype);
+					}
+
+					
 				};
 
 				if (extension === '.hbs') {
@@ -100,6 +111,7 @@ WhirApp.prototype.getStructure = function() {
 					// console.log(template);
 
 					_this.library[searchDirectory][basename] = hb.compile(template);
+					bus.publish('app.templates',_this.library[searchDirectory])
 				};
 
 

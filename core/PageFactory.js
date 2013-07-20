@@ -2,7 +2,8 @@ var Backbone = require('backbone'),
 	Q = require('q')
 	bus = require('./bus'),
 	path = require('path'),
-	U = require('url');
+	U = require('url'),
+	hb = require('handlebars');
 
 
 var PageFactory = function PageFactory(options) {
@@ -21,7 +22,8 @@ PageFactory.prototype.bus = bus;
 // setup listeners for incoming events
 PageFactory.prototype.startListening = function startListening() {
 	this.bus.subscribe('app.routes', this.addRoutes.bind(this));
-	this.bus.subscribe('request.in', this.build.bind(this));
+	this.bus.subscribe('app.templates',this.addTemplates.bind(this));
+	this.bus.subscribe('request.in', this.handleBuildRequest.bind(this));
 };
 
 // bulk compiled template add
@@ -36,27 +38,46 @@ PageFactory.prototype.addRoutes = function(routes) {
 	
 };
 
-// build function, returning a promise to the built page
-PageFactory.prototype.build = function build(options) {
+PageFactory.prototype.handleBuildRequest = function(options){
 
-	var building = Q.defer();
-
+	var bus = this.bus;
+	
+	
+	
 	var url = path.normalize(options.url).split('/');
 
 	if (url.join('/') !== options.url){
 		options.res.redirect(url.join('/'));
+	} else {
+		this.build(url,options.uuid).then(function(result){
+			options.res.send(result);
+		}, function(error){
+			bus.publish('app.debug',error);
+		}).done(function(){
+			var duration = Date.now()-options.time;
+			bus.publish('app.debug','Done building in '+duration+' ms');
+			
+		});
 	}
+};
 
-	console.log(this.routes);
+// build function, returning a promise to the built page
+PageFactory.prototype.build = function build(url,uuid) {
+
+	var buildingPage = Q.defer();
+
 	
 
 	if (this.routes[url[1]]) {
 		
 		var controller = url[1];
 		var action = url[2];
+		
+		var requestInstance = new this.routes[controller].instance.constructor(url,this.templates,uuid);
+		
 
-		var output = this.routes[controller].instance[action](options.req,options.res);
-		options.res.send(output);
+		var output = requestInstance[action].apply(requestInstance);
+		buildingPage.resolve(output);
 	};
 
 	
@@ -65,7 +86,7 @@ PageFactory.prototype.build = function build(options) {
 
 	//
 
-	return building.promise;
+	return buildingPage.promise;
 
 
 
