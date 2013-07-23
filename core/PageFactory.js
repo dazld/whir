@@ -8,6 +8,10 @@ var Backbone = require('backbone'),
 
 var PageFactory = function PageFactory(options) {
 
+	hb.registerHelper('original', function() {
+		return new hb.SafeString('<p>' + this.uuid + '</p>');
+	});
+
 	this.startListening();
 	this.routes = {};
 	this.views = {};
@@ -50,19 +54,21 @@ PageFactory.prototype.addView = function(view) {
 PageFactory.prototype.handleBuildRequest = function(options) {
 
 	var bus = this.bus;
+	var uuid = options.uuid;
 
-
+	
 
 	var url = path.normalize(options.url).split('/');
 
 	if (url.join('/') !== options.url) {
 		options.res.redirect(url.join('/'));
 	} else {
-		this.build(url, options.uuid).then(function(result) {
+		this.build(url, uuid).then(function(result) {
 			options.res.send(result);
-		}, function(error) {
-			bus.publish('app.debug', error);
+		}).fail(function(error) {
+			bus.publish('app.error', error);
 		}).done(function() {
+
 			var duration = Date.now() - options.time;
 			bus.publish('app.debug', 'Done building in ' + duration + ' ms');
 
@@ -71,11 +77,11 @@ PageFactory.prototype.handleBuildRequest = function(options) {
 };
 
 PageFactory.prototype.getFramework = function() {
+
 	var fw = {
 		templates: this.templates,
 		views: this.views,
 		models: this.models
-
 	};
 
 	return fw;
@@ -95,9 +101,9 @@ PageFactory.prototype.build = function build(url, uuid) {
 
 		var requestInstance = new this.routes[controller].instance.constructor(url, framework, uuid);
 
-
 		var output = requestInstance[action].apply(requestInstance);
 		buildingPage.resolve(output);
+
 	};
 
 

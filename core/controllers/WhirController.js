@@ -1,6 +1,7 @@
 var Backbone = require('backbone'),
     bus = require('../bus'),
     annotate = require('../helpers/annotate'),
+    handlebars = require('handlebars'),
     _ = require('underscore');
 
 
@@ -12,23 +13,16 @@ var expectedRouteSignature = ['req', 'res', 'params'];
 var WhirController = function WhirController(url, framework, uuid) {
 
     this.url = url;
-    this.hb = framework.templates;
+    this.templates = framework.templates;
     this.views = framework.views;
     this.models = framework.models;
     this.uuid = uuid;
-
-    // if (!_.isString(this.name)) {
-    //     // throw 'controllers require a name property to setup routes';
-    // };
-
-    // this.bus.publish('app.controller',{
-    //     name: this.name,
-    //     url: this.url
-    // });
+    this.hb = handlebars.create();
 
     this.routes = this.routes && _.isObject(this.routes) ? this.routes : {};
 
     this.initialize.apply(this, arguments);
+
 };
 
 WhirController.prototype.initialize = function() {
