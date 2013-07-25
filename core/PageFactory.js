@@ -60,12 +60,21 @@ PageFactory.prototype.handleBuildRequest = function(options) {
 
 	var url = path.normalize(options.url).split('/');
 
+	if (url[2] && url[2][0] === '_') {
+		bus.publish('app.debug',{
+			msg: 'redirecting from',
+			url: url
+		});
+		options.res.redirect(url[0]+'/');
+	};
+
 	if (url.join('/') !== options.url) {
 		options.res.redirect(url.join('/'));
 	} else {
 		this.build(url, uuid).then(function(result) {
 			options.res.send(result);
 		}).fail(function(error) {
+			options.res.redirect(url[0]+'/');
 			bus.publish('app.error', error);
 		}).done(function() {
 
@@ -106,13 +115,7 @@ PageFactory.prototype.build = function build(url, uuid) {
 
 	};
 
-
-
-	//
-
 	return buildingPage.promise;
-
-
 
 };
 

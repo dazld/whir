@@ -2,12 +2,13 @@ var Backbone = require('backbone');
 var _ = require('underscore');
 var bus = require('../bus');
 var $ = require('cheerio');
-var isServer = ('../lib/is-server');
+var isServer = require('../lib/is-server');
 
 
 
 var WhirView = Backbone.View.extend({
-	bus: bus
+	bus: bus,
+	isServer: isServer
 });
 
 if (isServer) {
