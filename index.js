@@ -4,6 +4,7 @@ var bus = require('./core/bus');
 var hb = require('handlebars');
 var uuid = require('node-uuid').v4;
 
+
 var PageFactory = require('./core/PageFactory'),
 	fs = require('fs'),
 	path = require('path'),
@@ -27,7 +28,6 @@ var WhirApp = function(options) {
 
 WhirApp.prototype.start = function start() {
 
-
 	this.getStructure()
 		.then(this.bootServer.bind(this),
 
@@ -42,6 +42,11 @@ WhirApp.prototype.start = function start() {
 WhirApp.prototype.bootServer = function(args) {
 
 	var defaultRoute = this.options.defaultRoute || '/base/index';
+
+	app.use(function(req,res,next){
+		req.user = uuid();
+		next()
+	});
 
 	app.get('*', function(req, res, next) {
 

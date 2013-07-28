@@ -10,12 +10,15 @@ var Backbone = require('backbone'),
 var expectedRouteSignature = ['req', 'res', 'params'];
 
 
-var WhirController = function WhirController(url, framework, uuid) {
+var WhirController = function WhirController(url, sandboxedModuleFactory, uuid) {
 
     this.url = url;
-    this.templates = framework.templates;
-    this.views = framework.views;
-    this.models = framework.models;
+
+    this.sandboxedModuleFactory = sandboxedModuleFactory;
+
+    // this.templates = framework.templates;
+    // this.views = framework.views;
+    // this.models = framework.models;
     this.uuid = uuid;
     this.hb = handlebars.create();
 
@@ -24,6 +27,14 @@ var WhirController = function WhirController(url, framework, uuid) {
     this.initialize.apply(this, arguments);
 
 };
+
+WhirController.prototype.getSandboxedModule = function(module){
+    var resolvedName = require.resolve(module);
+
+    console.log('trying to load ', resolvedName);
+
+    return this.sandboxedModuleFactory(resolvedName);
+}
 
 WhirController.prototype.initialize = function() {
     // console.log('CONTROLLER INIT',arguments);

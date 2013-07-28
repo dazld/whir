@@ -22,10 +22,8 @@ if (isServer) {
 			var attrs = _.extend({}, _.result(this, 'attributes'));
 			if (this.id) attrs.id = _.result(this, 'id');
 			if (this.className) attrs['class'] = _.result(this, 'className');
-			var DOM = cheerio.load('<' + _.result(this, 'tagName') + '>', {
-				ignoreWhitespace: true // should probably bet set false for dev, but true for live stuff
-			});
-			var $el = DOM.root();
+			var $el = cheerio('<' + _.result(this, 'tagName') + '>');
+
 			$el.attr(attrs);
 			this.setElement($el, false);
 		} else {
@@ -35,7 +33,7 @@ if (isServer) {
 
 	WhirView.prototype.setElement = function(element, delegate) {
 		if (this.$el) this.undelegateEvents();
-		this.$el = element instanceof cheerio ? element : cheerio(element);
+		this.$el = element; //instanceof cheerio ? element : cheerio(element);
 		this.el = this.$el[0];
 		if (delegate !== false) this.delegateEvents();
 		return this;
