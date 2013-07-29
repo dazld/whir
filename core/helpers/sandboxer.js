@@ -8,74 +8,64 @@ var Modulecache = function(){
 	this.cache = {};
 };
 
-Modulecache.prototype.get = function(id, module) {
-	if (true) {};
-};
-
-Modulecache.prototype.set = function(module){
-
-	var modResolved = require.resolve(module);
-	var toCache = require(modResolved);
-
-	
-
-	var deps = _.reduce(require.cache[modResolved].children,function(memo, item){
-		memo.push(item.id);
-		return memo;
-	},[]);
-	
-	this.cache[modResolved] = {
-		exports: toCache,
-		deps: deps
-	};
-
-};
-
-Modulecache.prototype.clear = function(id, module) {
-	if (id && !module) {
-		this.cache[id] = null;
-		delete this.cache[id];
-	} else if (id && module){
-		this.cache[id][module] = null;
-		delete this.cache[id][module];
+Modulecache.prototype.get = function(moduleId) {
+	if (this.cache[moduleId]) {
+		return this.cache[moduleId];
 	} else {
-		this.cache = null;
-		this.cache = {};
+		// throw 'Module not found';
+		return false;
 	}
+};
+
+Modulecache.prototype.set = function(moduleId, module){
+
+	this.cache[moduleId] = module;
+
+};
+
+Modulecache.prototype.clear = function(moduleId) {
+	if (this.cache[moduleId]) {
+		this.cache[moduleId] = null;
+		delete this.cache[moduleId];
+		return true;
+	} else {
+		return false;
+	}
+
 };
 
 var Sandboxer = function(){
 	var _this = this;
-	this.cache = new Modulecache();
-	this.definitionCache = new Modulecache();
 	this.bus = bus;
-	this.bus.subscribe('module.dependencies',function(data,topic){
-		console.log(data.name);
-
-		process.nextTick(function(){
-			_this.definitionCache.set(data.name);
-		});
-
-		
-	});
 };
 
 Sandboxer.prototype.create = function(locals){
 
-	var cache = this.cache;
+	var cache = new Modulecache();
 
-	for(var local in locals){
-		console.log(local, locals[local]);
-	}
 
 	return function(moduleId){
 		
 		var resolvedId = require.resolve(moduleId);
 
+
+		var deps = _.map(require.cache[resolvedId].children,function(dep){
+			return dep.id ? dep.id : false;
+		});
+		
+
+
+		if (cache[moduleId]) {
+			return cache[moduleId];
+		};
+
 		var rewiredModule = rewire(resolvedId);
+		
 		for(var local in locals){
 			rewiredModule.__set__(local,locals[local]);
 		}
+
+		cache.set(resolvedId, rewiredModule);
 
 		return rewiredModule;
 	}
