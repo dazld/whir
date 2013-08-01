@@ -1,3 +1,4 @@
 /node_modules/
 /npm-debug.log
 /core/.tern-port
+/core/controllers/.tern-port

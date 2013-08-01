@@ -4,6 +4,8 @@ var Backbone = require('backbone'),
 	path = require('path'),
 	U = require('url'),
 	hb = require('handlebars'),
+	postal = require('postal'),
+	RequestModel = require('./models/request-model'),
 	sandbox = require('./helpers/sandboxer');
 
 var PageFactory = function PageFactory(options) {
@@ -56,9 +58,19 @@ PageFactory.prototype.handleBuildRequest = function(options) {
 	var bus = this.bus;
 	var uuid = options.uuid;
 
-	var sandboxedModuleFactory = sandbox.create({
-		userId: uuid
+	// build model from request headers and data
+	var requestData = new RequestModel({
+		url: options.req.url,
+		headers: options.req.headers,
+		cookies: options.req.cookies,
+		uuid: uuid
 	});
+
+	console.log(requestData.toJSON());
+
+	
+
+	
 
 
 
@@ -75,7 +87,7 @@ PageFactory.prototype.handleBuildRequest = function(options) {
 	if (url.join('/') !== options.url) {
 		options.res.redirect(url.join('/'));
 	} else {
-		this.build(url, uuid, sandboxedModuleFactory).then(function(result) {
+		this.build(url, uuid, requestData).then(function(result) {
 			options.res.send(result);
 		}).fail(function(error) {
 			options.res.redirect(url[0]+'/');
@@ -101,18 +113,18 @@ PageFactory.prototype.getFramework = function() {
 };
 
 // build function, returning a promise to the built page
-PageFactory.prototype.build = function build(url, uuid, sandboxedModuleFactory) {
+PageFactory.prototype.build = function build(url, uuid, requestData) {
 
 	var buildingPage = Q.defer();
 
-	var framework = sandboxedModuleFactory;
+	
 
 	if (this.routes[url[1]]) {
 
 		var controller = url[1];
 		var action = url[2];
 
-		var requestInstance = new this.routes[controller].instance.constructor(url, framework, uuid);
+		var requestInstance = new this.routes[controller].instance.constructor(url, requestData, uuid);
 
 		var output = requestInstance[action].apply(requestInstance);
 		buildingPage.resolve(output);

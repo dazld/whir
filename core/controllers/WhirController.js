@@ -10,15 +10,13 @@ var Backbone = require('backbone'),
 var expectedRouteSignature = ['req', 'res', 'params'];
 
 
-var WhirController = function WhirController(url, sandboxedModuleFactory, uuid) {
+var WhirController = function WhirController(url, requestData, uuid) {
 
     this.url = url;
 
-    this.sandboxedModuleFactory = sandboxedModuleFactory;
+    this.sandboxedModuleFactory = false; // should be instanced by init method
+    this.requestData = requestData; // BB model with headers, cookies, url
 
-    // this.templates = framework.templates;
-    // this.views = framework.views;
-    // this.models = framework.models;
     this.uuid = uuid;
     this.hb = handlebars.create();
 

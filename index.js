@@ -43,6 +43,8 @@ WhirApp.prototype.bootServer = function(args) {
 
 	var defaultRoute = this.options.defaultRoute || '/base/index';
 
+	app.use(express.cookieParser());
+
 	app.use(function(req,res,next){
 		req.user = uuid();
 		next()

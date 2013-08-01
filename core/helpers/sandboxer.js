@@ -4,7 +4,7 @@ var rewire = require('rewire');
 
 
 
-var Modulecache = function(){
+var Modulecache = function() {
 	this.cache = {};
 };
 
@@ -17,7 +17,7 @@ Modulecache.prototype.get = function(moduleId) {
 	}
 };
 
-Modulecache.prototype.set = function(moduleId, module){
+Modulecache.prototype.set = function(moduleId, module) {
 
 	this.cache[moduleId] = module;
 
@@ -34,35 +34,35 @@ Modulecache.prototype.clear = function(moduleId) {
 
 };
 
-var Sandboxer = function(){
+var Sandboxer = function() {
 	var _this = this;
 	this.bus = bus;
 };
 
-Sandboxer.prototype.create = function(locals){
+Sandboxer.prototype.create = function(locals) {
 
 	var cache = new Modulecache();
 
 
-	return function(moduleId){
-		
+	return function(moduleId) {
+
 		var resolvedId = require.resolve(moduleId);
 
-
-		var deps = _.map(require.cache[resolvedId].children,function(dep){
-			return dep.id ? dep.id : false;
-		});
-		
-
-
-		if (cache[moduleId]) {
-			return cache[moduleId];
+		if (cache[resolvedId]) {
+			return cache[resolvedId];
 		};
 
+
+		// look for this modules children
+		var deps = _.map(require.cache[resolvedId].children, function(dep) {
+			return dep.id ? dep.id : false;
+		});
+
+
 		var rewiredModule = rewire(resolvedId);
-		
-		for(var local in locals){
-			rewiredModule.__set__(local,locals[local]);
+
+		for (var local in locals) {
+			rewiredModule.__set__(local, locals[local]);
 		}
 
 		cache.set(resolvedId, rewiredModule);
