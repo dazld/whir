@@ -1,5 +1,6 @@
 var Backbone = require('backbone'),
     bus = require('../bus'),
+    sandboxer = require('../helpers/sandboxer'),
     annotate = require('../helpers/annotate'),
     handlebars = require('handlebars'),
     _ = require('underscore');
@@ -24,6 +25,10 @@ var WhirController = function WhirController(url, requestData, uuid) {
 
     this.initialize.apply(this, arguments);
 
+};
+
+WhirController.prototype._createSandbox = function(locals) {
+    this.sandboxedModuleFactory = sandboxer.create(locals);
 };
 
 WhirController.prototype.getSandboxedModule = function(module){
