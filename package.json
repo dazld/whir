@@ -6,7 +6,7 @@
     "q": "~0.9.x",
     "postal": "~0.8.x",
     "backbone": "1.0.0",
-    "underscore": "~1.5.x",
+    "underscore": "~1.5.1",
     "node-uuid": "~1.4.0",
     "cheerio": "~0.12.0",
     "rewire": "~1.1.3"
