@@ -26,5 +26,19 @@
     "should": "1.2.2",
     "sinon": "1.6.0"
   },
-  "version": "0.0.2"
+  "version": "0.0.2",
+  "description": "Whir is a work in progress framework for rendering pages on the server that are sent to clients via express, supporting sandboxing and providing a model with state information for each request (cookies, headers, url etc)",
+  "keywords": ["framework"],
+  "homepage": "https://github.com/dazld/whir",
+  "bugs": "https://github.com/dazld/whir/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Dan Peddle",
+    "email": "dan@flarework.com",
+    "url": "http://flarework.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/dazld/whir.git"
+  }
 }
