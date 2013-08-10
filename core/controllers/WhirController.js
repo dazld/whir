@@ -3,6 +3,7 @@ var Backbone = require('backbone'),
     sandboxer = require('../helpers/sandboxer'),
     annotate = require('../helpers/annotate'),
     handlebars = require('handlebars'),
+    templates = require('../lib/templates'),
     _ = require('underscore');
 
 
@@ -14,7 +15,7 @@ var expectedRouteSignature = ['req', 'res', 'params'];
 var WhirController = function WhirController(url, requestData, uuid) {
 
     this.url = url;
-
+    this.templates = templates;
     this.sandboxedModuleFactory = false; // should be instanced by init method
     this.requestData = requestData; // BB model with headers, cookies, url
 

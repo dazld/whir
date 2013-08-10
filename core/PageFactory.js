@@ -29,7 +29,7 @@ PageFactory.prototype.bus = bus;
 // setup listeners for incoming events
 PageFactory.prototype.startListening = function startListening() {
 	this.bus.subscribe('app.routes', this.addRoutes.bind(this));
-	this.bus.subscribe('app.templates', this.addTemplates.bind(this));
+	// this.bus.subscribe('app.templates', this.addTemplates.bind(this));
 	this.bus.subscribe('app.views', this.addView.bind(this));
 	this.bus.subscribe('request.in', this.handleBuildRequest.bind(this));
 };
@@ -66,7 +66,6 @@ PageFactory.prototype.handleBuildRequest = function(options) {
 		uuid: uuid
 	});
 
-	console.log(requestData.toJSON());
 
 	
 
@@ -75,6 +74,8 @@ PageFactory.prototype.handleBuildRequest = function(options) {
 
 
 	var url = path.normalize(options.url).split('/');
+
+
 
 	if (url[2] && url[2][0] === '_') {
 		bus.publish('app.debug',{
@@ -122,11 +123,11 @@ PageFactory.prototype.build = function build(url, uuid, requestData) {
 	if (this.routes[url[1]]) {
 
 		var controller = url[1];
-		var action = url[2];
+		var action = url[2] || 'index';
 
 		var requestInstance = new this.routes[controller].instance.constructor(url, requestData, uuid);
 
-		var output = requestInstance[action].apply(requestInstance);
+		var output = requestInstance[action].apply(requestInstance, url.slice(3,url.length));
 		buildingPage.resolve(output);
 
 	};

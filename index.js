@@ -3,6 +3,7 @@ var Q = require('q');
 var bus = require('./core/bus');
 var hb = require('handlebars');
 var uuid = require('node-uuid').v4;
+var Templates = require('./core/lib/templates');
 
 
 var PageFactory = require('./core/PageFactory'),
@@ -124,8 +125,11 @@ WhirApp.prototype.getStructure = function() {
 					var template = fs.readFileSync(toLoad, 'UTF8');
 					// console.log(template);
 
-					_this.library[searchDirectory][basename] = hb.compile(template);
-					bus.publish('app.templates',_this.library[searchDirectory])
+					var tpl = hb.compile(template);
+					bus.publish('app.templates',{
+						name: basename,
+						tpl: tpl
+					});
 				};
 
 
