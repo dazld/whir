@@ -3,12 +3,14 @@ var _ = require('underscore');
 var bus = require('../bus');
 var $ = require('cheerio');
 var isServer = require('../lib/is-server');
+var getTemplate = require('../lib/templates').get;
 
 
 
 var WhirView = Backbone.View.extend({
 	bus: bus,
-	isServer: isServer
+	isServer: isServer,
+	_getTemplate: getTemplate
 });
 
 if (isServer) {
