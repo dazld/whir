@@ -6,6 +6,7 @@ var Backbone = require('backbone'),
 	hb = require('handlebars'),
 	postal = require('postal'),
 	RequestModel = require('./models/request-model'),
+	domain = require('domain'),
 	sandbox = require('./helpers/sandboxer');
 
 var PageFactory = function PageFactory(options) {
@@ -58,6 +59,7 @@ PageFactory.prototype.handleBuildRequest = function(options) {
 	var bus = this.bus;
 	var uuid = options.uuid;
 
+
 	// build model from request headers and data
 	var requestData = new RequestModel({
 		url: options.req.url,
@@ -66,16 +68,7 @@ PageFactory.prototype.handleBuildRequest = function(options) {
 		uuid: uuid
 	});
 
-
-	
-
-	
-
-
-
 	var url = path.normalize(options.url).split('/');
-
-
 
 	if (url[2] && url[2][0] === '_') {
 		bus.publish('app.debug',{
@@ -117,17 +110,21 @@ PageFactory.prototype.getFramework = function() {
 PageFactory.prototype.build = function build(url, uuid, requestData) {
 
 	var buildingPage = Q.defer();
-
+	var requestDomain = domain.create();
 	
+	requestDomain.requestData = requestData;
+
 
 	if (this.routes[url[1]]) {
 
 		var controller = url[1];
 		var action = url[2] || 'index';
-
+		var output = false;
+		
 		var requestInstance = new this.routes[controller].instance.constructor(url, requestData, uuid);
 
-		var output = requestInstance[action].apply(requestInstance, url.slice(3,url.length));
+		output = requestInstance[action].apply(requestInstance, url.slice(3,url.length));
+		
 		buildingPage.resolve(output);
 
 	};

@@ -24,6 +24,7 @@ var WhirApp = function(options) {
 	directories.forEach(function(dir) {
 		this.library[dir] = {};
 	}, this);
+	this.app = app;
 
 };
 
@@ -51,6 +52,10 @@ WhirApp.prototype.bootServer = function(args) {
 		next()
 	});
 
+	if (this.options.staticDir) {
+		app.use('/static/', express.static(this.options.staticDir));
+	};
+	
 	app.get('*', function(req, res, next) {
 
 		if (req.url === '/') {
