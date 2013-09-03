@@ -13,10 +13,7 @@ var PageFactory = require('./core/PageFactory'),
 
 var factory = new PageFactory();
 
-
 var directories = ['controllers', 'views', 'models', 'collections', 'templates'];
-
-
 
 var WhirApp = function(options) {
 	this.options = options;
@@ -36,7 +33,6 @@ WhirApp.prototype.start = function start() {
 	function(error) {
 		console.log('[ERROR]: booting server: ', error);
 	});
-
 
 };
 
@@ -104,8 +100,6 @@ WhirApp.prototype.getStructure = function() {
 					basename = path.basename(toLoad, extension);
 
 				if (extension === '.js') {
-
-
 					
 					// _this.library[searchDirectory][basename] = resource;
 
@@ -120,9 +114,7 @@ WhirApp.prototype.getStructure = function() {
 						
 						bus.publish('app.views',loadedResource);
 					};
-					
-
-					
+										
 				};
 
 				if (extension === '.hbs') {
@@ -135,6 +127,7 @@ WhirApp.prototype.getStructure = function() {
 						name: basename,
 						tpl: tpl
 					});
+
 				};
 
 
